@@ -1,0 +1,68 @@
+<script> 
+//  # 일급
+//  값으로 다룰 수 있다.
+//  변수에 담을 수 있다.
+//  함수의 인자로 사용될 수 있다.
+//  함수의 결과로 사용될 수 있다.
+    const A = 10;
+    const ADD10 = a => a + 10;
+    const R = ADD10(A);
+    console.log(ADD10(10));
+    console.log("-----------");
+</script>
+
+<script> 
+//  # 일급 함수
+//  함수를 값으로 다룰 수 있다.
+//  조합성과 추상화의 도구
+    const ADD5 = a => a + 5;
+    console.log(ADD5);
+    console.log(ADD5(5));
+
+    const f1 = () => () => 1;
+    console.log(f1());
+
+    const f2 = f1();
+    console.log(f2);
+    console.log(f2());
+    console.log("-----------");
+</script>
+
+<script>
+//  # 고차 함수
+//  함수를 값으로 다루는 함수
+    const APPLY1 = f => f(1); // 함수를 받아서 함수에 1을 적용
+    const ADD2 = a => a + 2;  // a의 인자를 받아 2를 더함
+    console.log(APPLY1(ADD2));      
+    // APPLY1은 함수 ADD2를 받아 ADD2(1) 이 되며,
+    // a => a+2(1), 인자는 1이기에, 1+2는 3
+    console.log(APPLY1(a=> a - 1)); // 인자는 1이며, -1 을 하면 0
+
+    const TIMES = (f, n) => {  // TIMES라는 값에 함수와, 숫자를 받음
+        let i = -1;            
+        while (++i < n){        // i를 증가시키며, n보다 작을 때 까지 while문
+            console.log(i);
+            f(i);
+        }       
+
+    };
+    
+    TIMES(console.log, 3);
+    TIMES(a => console.log(a + 10), 3);
+    console.log("----------");
+
+</script>
+
+<script>
+//  ## 함수를 만들어 리턴하는 함수 (클로저를 만들어 리턴하는 함수)
+    let a = 10
+    const ADDMAKER = a => b => a + b;  
+    // ADDMAKER는 a라는 함수에서 b라는 함수를 리턴한다.
+    let add10 = ADDMAKER(a); // b => a + b , a = 10이 넘어오므로, b => 10 + b
+    console.log(add10);       // 단, 콘솔창에는 b => a + b 형태로 보인다.
+    
+    console.log(add10(5));    
+    // b => 10 + b ▶ b => 10 + 5 ▶ 15
+    
+
+</script>
