@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../06. 장바구니 예제/js/fx.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="cart">
+    </div>
+        <script>
+            const products = [
+                { name: '반팔티', price: 15000, quantity: 1, is_selected: true },
+                { name: '긴팔티', price: 20000, quantity: 2, is_selected: false },
+                { name: '핸드폰케이스', price: 15000, quantity: 3, is_selected: true },
+                { name: '후드티', price: 30000, quantity: 4, is_selected: false },
+                { name: '바지', price: 25000, quantity: 5, is_selected: false }
+            ];
+            // const total_quantity = go(products,
+            // map(p => p.quantity),
+            // reduce((a,b) => a+b),
+            // log);
+
+
+            const add = (a, b) => a + b;
+
+            // const sum = (f, iter) => go(
+            //     iter,
+            //     map(f),
+            //     reduce(add)
+            // );
+            const sum = curry((f, iter) => go(
+                iter,
+                map(f),
+                reduce(add)));
+
+            const sumWithCurry = curry((f, iter) => go(
+                iter,
+                map(f),
+                reduce(add)
+            ));
+
+            const total_quantityWithCurry = sum(p => p.quantity);
+            log(total_quantityWithCurry);
+            const total_priceWithCurry = sum(p => p.quantity * p.price);
+            log(total_priceWithCurry);
+
+            const total_quantity = products => sum(p => p.quantity, products);
+            log(total_quantity(products));
+
+            const total_price = products => sum(p => p.quantity * p.price, products);
+            log(total_price(products));
+
+            // const total_quantity = products => go(products,
+            // map(p => p.quantity),
+            // reduce(add));
+
+            // log(total_quantity(products));
+
+
+            // const total_prices = products => go(products,
+            // map(p => p.price * p.quantity),
+            // reduce(add));
+
+            // log(total_prices(products));
+
+            document.querySelector('#cart').innerHTML = `
+                    <table>
+                    <tr>
+                        <th></th>
+                        <th>상품 이름</th>
+                        <th>가격</th>
+                        <th>수량</th>
+                        <th>총 가격</th>
+                    </tr>
+                    ${go(products, sumWithCurry(p => `
+                        <tr>
+                            <td><input type="checkbox" ${p.is_selected ? 'checked' : ''}></td>
+                            <td>${p.name}</td>
+                            <td>${p.price}</td>
+                            <td><input type="number" value="${p.quantity}"></td>
+                            <td>${p.price * p.quantity}</td>
+                        </tr>
+                    `))}
+                    <tr>
+                        <td colspan="3">합계</td>
+                        <td>${total_quantityWithCurry(filter(p => p.is_selected, products))}</td>
+                        <td>${total_priceWithCurry(filter(p => p.is_selected, products))}</td>
+                    </tr>
+                    </table>`;
+        </script>
+    
+</body>
+
+</html>
