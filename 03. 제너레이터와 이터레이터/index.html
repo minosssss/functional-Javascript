@@ -1,9 +1,8 @@
-
 # 제너레이터/이터레이터
 - 제너레이터: 이터레이터이자 이터러블을 생성하는 함수
 *** 어떠한 상태나 어떠한 값이든 제네레이터를 통하여 순회할 수 있게 만들 수 있다.
 <script>
-    function *gen() { // 제너레이터는 일반 함수에서 *을 붙여줌
+    function* gen() { // 제너레이터는 일반 함수에서 *을 붙여줌
         yield 1;
         yield 2;
         return 100;   // done: true
@@ -25,33 +24,33 @@
 # odds
 
 <script>
-    function *infinity(i=0) {
-        while (true) yield i++;  
+    function* infinity(i = 0) {
+        while (true) yield i++;
         // while문 true이므로 무한히 생성 되지만, 평가할 때 까지만 동작함.
     }
 
-    function *limit(l, iter) {
+    function* limit(l, iter) {
         for (const a of iter) {
             yield a;
-            if (a==l) return;
+            if (a == l) return;
 
         }
     }
 
-    function *odds1(l) {
+    function* odds1(l) {
         for (const a of limit(l, infinity(1))) {
-            if (a%2) yield a;
+            if (a % 2) yield a;
         }
-    } 
+    }
 
-    function *odds2(l) {
+    function* odds2(l) {
         for (const a of infinity(1)) {
             if (i % 2) yield i;
             if (a == l) return;
 
         }
     }
-    
+
     let iter2 = odds1(10);
     console.log(iter2.next());
     console.log(iter2.next());
@@ -69,7 +68,7 @@
 
 <script>
     console.log(...odds1(10));
-    console.log([...odds1(10),...odds1(30)]);
+    console.log([...odds1(10), ...odds1(30)]);
 
     const [head, ...tail] = odds1(5);
     console.log(head);
@@ -79,4 +78,8 @@
     console.log(a);
     console.log(b);
     console.log(rest);
+</script>
+
+<script>
+    
 </script>

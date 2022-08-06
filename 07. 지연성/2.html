@@ -9,8 +9,8 @@
 ### L.map
 
 <script>
-    L.map = function *(iter) {
-        for (const a of iter) yield a;
+    L.map = function* (f,iter) {
+        for (const a of iter) yield f(a);
     };
     var it = L.map([1,2,3]);
     log(it.next());
