@@ -1,0 +1,85 @@
+<script src="../lib/fx.js"></script>
+
+
+# Promise
+
+## 일급
+
+<script>
+    function add20(a) {
+        return new Promise(
+            resolve => setTimeout(() => resolve(a + 20), 100));
+    }
+
+    add20(5)
+    .then(add20)
+
+    // Callback 패턴은 함수를 반환하여, Promise는 해당 객체의 값을 반환한다.
+    // Promise의 장점은 callback패턴의 가독성을 보완해준다.
+</script>
+
+
+## Composition
+<script type="module">
+    // f . g
+    // f(g(x))
+  
+    const g = a => a + 1;
+    const f = a => a * a;
+  
+    // log(f(g(1)));
+    // log(f(g()));
+  
+    Array.of(1).map(g).map(f)/*.forEach(r => log(r))*/;
+    [].map(g).map(f)/*.forEach(r => log(r))*/;
+  
+    Promise.resolve(2).then(g).then(f)/*.then(r => log(r))*/;
+    new Promise(resolve =>
+      setTimeout(() => resolve(2), 100)
+    ).then(g).then(f)/*.then(r => log(r))*/;
+  </script>
+
+## Kleisli Composition
+
+<script type="module">
+    var users = [
+        {id:1,name:'aa'},
+        {id:2,name:'bb'},
+        {id:3,name:'cc'},
+];
+
+    const getUserById = id => 
+    find(u => u.id == id, users);
+
+    const f = ({name}) => name;
+    const g = getUserById;
+    const fg = id => f(g(id));
+
+    const r = fg(2);
+    log(r);
+
+    // 외부에 의한 변화가 이루어 질 경우
+    users.pop();
+    users.pop();
+
+    // const r2 = fg(2);
+    log(r); // 에러 발생!
+
+</script>
+
+<script type="module">
+     var users = [
+        {id:1,name:'aa'},
+        {id:2,name:'bb'},
+        {id:3,name:'cc'},
+    ];
+    
+    const edit_getUserById = id => 
+    find(u => u.id == id, users) || Promise.reject('없어요!');
+
+    const f = ({name}) => name;
+    const g = edit_getUserById;
+
+    const edit_fg = id => Promise.resolve(id).then(g).then(f).catch(a => a);
+    edit_fg(6).then(log);
+</script>
