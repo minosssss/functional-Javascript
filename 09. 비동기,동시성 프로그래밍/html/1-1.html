@@ -6,80 +6,117 @@
 ## 일급
 
 <script>
-    function add20(a) {
-        return new Promise(
-            resolve => setTimeout(() => resolve(a + 20), 100));
-    }
+  function add10(a, callback) {
+    setTimeout(() => callback(a + 10), 1000);
+  }
 
-    add20(5)
+  add10(5, res => {
+    add10(res, res => {
+      add10(res, res => {
+        log(res);
+      });
+    });
+  });
+
+  function add20(a) {
+    return new Promise(
+      resolve => setTimeout(() => resolve(a + 20), 1000));
+  }
+
+  add20(5)
     .then(add20)
+    .then(add20)
+    .then(add20)
+    .then(add20)
+    .then(log)
+
 
     // Callback 패턴은 함수를 반환하여, Promise는 해당 객체의 값을 반환한다.
     // Promise의 장점은 callback패턴의 가독성을 보완해준다.
+    // 그보다 중요한 점은 Promise는 callback과 비동기로 일어난 일에 대해, 값으로 다룰 수 있는 것이다.
+    // 
+</script>
+
+## 일급활용
+<script>
+  const delay100 = arg => new Promise(res => setTimeout(() => res(arg)), 100)
+  // const go1 = (arg, fn) => fn(arg);
+  const add5 = arg => arg + 5;
+  // let result1 = go1(10, add5);
+  // let result2 = go1(delay100(10),add5);
+  // log(result1);
+  // log(result2.then(log));
+  go1(go1(10, add5),log);
+  go1(go1(delay100(10),add5),log);
+  
 </script>
 
 
 ## Composition
 <script type="module">
-    // f . g
-    // f(g(x))
-  
-    const g = a => a + 1;
-    const f = a => a * a;
-  
-    // log(f(g(1)));
-    // log(f(g()));
-  
-    Array.of(1).map(g).map(f)/*.forEach(r => log(r))*/;
-    [].map(g).map(f)/*.forEach(r => log(r))*/;
-  
-    Promise.resolve(2).then(g).then(f)/*.then(r => log(r))*/;
-    new Promise(resolve =>
-      setTimeout(() => resolve(2), 100)
-    ).then(g).then(f)/*.then(r => log(r))*/;
-  </script>
+  // f . g
+  // f(g(x))
 
+  const g = a => a + 1;
+  const f = a => a * a;
+
+  // log(f(g(1)));
+  // log(f(g()));
+
+  Array.of(1).map(g).map(f)/*.forEach(r => log(r))*/;
+  [].map(g).map(f)/*.forEach(r => log(r))*/;
+
+  //Array는 map,filter 등의 함수로 값을 합성한다.
+
+  Promise.resolve(2).then(g).then(f).then(r => log(r));
+  new Promise(resolve =>
+    setTimeout(() => resolve(2), 100)
+  ).then(g).then(f).then(r => log(r));
+
+  //Promise는 then으로 값을 합성한다.
+</script>
+<!-- 
 ## Kleisli Composition
 
 <script type="module">
-    var users = [
-        {id:1,name:'aa'},
-        {id:2,name:'bb'},
-        {id:3,name:'cc'},
-];
+  var users = [
+    { id: 1, name: 'aa' },
+    { id: 2, name: 'bb' },
+    { id: 3, name: 'cc' },
+  ];
 
-    const getUserById = id => 
+  const getUserById = id =>
     find(u => u.id == id, users);
 
-    const f = ({name}) => name;
-    const g = getUserById;
-    const fg = id => f(g(id));
+  const f = ({ name }) => name;
+  const g = getUserById;
+  const fg = id => f(g(id));
 
-    const r = fg(2);
-    log(r);
+  const r = fg(2);
+  log(r);
 
-    // 외부에 의한 변화가 이루어 질 경우
-    users.pop();
-    users.pop();
+  // 외부에 의한 변화가 이루어 질 경우
+  users.pop();
+  users.pop();
 
-    // const r2 = fg(2);
-    log(r); // 에러 발생!
+  // const r2 = fg(2);
+  log(r); // 에러 발생!
 
 </script>
 
 <script type="module">
-     var users = [
-        {id:1,name:'aa'},
-        {id:2,name:'bb'},
-        {id:3,name:'cc'},
-    ];
-    
-    const edit_getUserById = id => 
+  var users = [
+    { id: 1, name: 'aa' },
+    { id: 2, name: 'bb' },
+    { id: 3, name: 'cc' },
+  ];
+
+  const edit_getUserById = id =>
     find(u => u.id == id, users) || Promise.reject('없어요!');
 
-    const f = ({name}) => name;
-    const g = edit_getUserById;
+  const f = ({ name }) => name;
+  const g = edit_getUserById;
 
-    const edit_fg = id => Promise.resolve(id).then(g).then(f).catch(a => a);
-    edit_fg(6).then(log);
-</script>
+  const edit_fg = id => Promise.resolve(id).then(g).then(f).catch(a => a);
+  edit_fg(6).then(log);
+</script> -->
