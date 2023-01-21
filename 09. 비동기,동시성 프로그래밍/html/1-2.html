@@ -4,8 +4,62 @@
 
 <script>
     go(1,
-    a=>a+10,
-    a=>a+100,
-    a=>a+1000,
-    log)
+        a => a + 10,
+        a => Promise.resolve(a + 100),  // 이 부분이 Promise가 리턴되는 함수로 합성된다면?
+        // a=>a+100,
+        a => a + 1000,
+        log);
+    // [object Promise]1000 -> 비정상적인 동작;
+
+    /**
+    * 
+    const go = (...args) => reduce((a, f) => f(a), args);
+    * go 함수는 구조적으로 제어권이 reduce에 있다.
+    */
+    const edit_reduce = curry((f, acc, iter) => {
+        if (!iter) {
+            iter = acc[Symbol.iterator]();
+            acc = iter.next().value;
+        } else {
+            iter = iter[Symbol.iterator]();
+        }
+        let cur;
+        while (!(cur = iter.next()).done) {
+            const a = cur.value;
+            // acc = f(acc,a);
+            // 아래와 같이 Promise에 대한 처리를 추가해준다.
+            // 단, 이렇게 진행할 경우 Promise가 아니더라도, 하나의 콜스택이 불필요한 비동기 처리 발생
+            // 동기적으로 While문에서 발생할 수 있도록 재귀함수를 이용해서 처리해보자.
+            acc = acc instanceof Promise ? acc.then(acc => f(acc, a)) : f(acc, a);
+        }
+        return acc;
+    });
+    const edit_sync_go = (...args) => edit_sync_reduce((a, f) => f(a), args);
+    const first_sync_go = (a,f) => a instanceof Promise ? a.then(f) : f(a);
+    const edit_sync_reduce = curry((f, acc, iter) => {
+        if (!iter) {
+            iter = acc[Symbol.iterator]();
+            acc = iter.next().value;
+        } else {
+            iter = iter[Symbol.iterator]();
+        }
+        return first_sync_go(acc, function recur(acc) {  //  1개의 콜스택으로 이루어지도록 변경
+            let cur;
+            while (!(cur = iter.next()).done) {
+                const a = cur.value;
+                acc = f(acc,a);
+                if (acc instanceof Promise) return acc.then(recur); 
+            }
+            return acc;
+        });
+    });
+    edit_sync_go(
+        //1,   첫번째 인지가 Promise라면? 해당 하는 처리로직을 작성해보자.
+        Promise.resolve(1),
+        a => a + 10,
+        a => Promise.resolve(a + 100),  // 이 부분이 Promise가 리턴되는 함수로 합성된다면?
+        a=>a+1000,
+        a => a + 10000,
+        log);
+
 </script>
