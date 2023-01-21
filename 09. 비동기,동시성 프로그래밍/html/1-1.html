@@ -75,10 +75,11 @@
 
   //Promise는 then으로 값을 합성한다.
 </script>
-<!-- 
+
 ## Kleisli Composition
 
 <script type="module">
+  console.clear();
   var users = [
     { id: 1, name: 'aa' },
     { id: 2, name: 'bb' },
@@ -88,23 +89,24 @@
   const getUserById = id =>
     find(u => u.id == id, users);
 
-  const f = ({ name }) => name;
-  const g = getUserById;
-  const fg = id => f(g(id));
+  const findName = ({ name }) => name;
+  const getUser = getUserById;
+  const findNameById = id => findName(getUser(id));
 
-  const r = fg(2);
-  log(r);
+  const result = findNameById(2);
+  log(result);
 
   // 외부에 의한 변화가 이루어 질 경우
   users.pop();
   users.pop();
-
-  // const r2 = fg(2);
-  log(r); // 에러 발생!
+  const result2 = findNameById(2);
+  log(result); // 에러 발생!
 
 </script>
 
 <script type="module">
+  console.clear();
+  // 위와 같은 상황에서 Promise를 활용한 에러 처리 방법
   var users = [
     { id: 1, name: 'aa' },
     { id: 2, name: 'bb' },
@@ -114,9 +116,12 @@
   const edit_getUserById = id =>
     find(u => u.id == id, users) || Promise.reject('없어요!');
 
-  const f = ({ name }) => name;
-  const g = edit_getUserById;
+  const edit_findName = ({ name }) => name;
+  const edit_getUser = edit_getUserById;
 
-  const edit_fg = id => Promise.resolve(id).then(g).then(f).catch(a => a);
-  edit_fg(6).then(log);
-</script> -->
+  const edit_findNameById = id => Promise.resolve(id)
+  .then(edit_getUser)
+  .then(edit_findName)
+  .catch(a => a);
+  edit_findNameById(6).then(log);
+</script>
