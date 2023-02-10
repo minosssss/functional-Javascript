@@ -1,0 +1,143 @@
+<script src="./lib/fx2.js"></script>
+
+# 이터러블 중심 프로그래밍에서의 지연 평가
+- 제때 계산법
+- 느긋한 계산법
+- 제너레이터/이터레이터 프로토콜을 기반으로 구현
+
+
+### L.map
+
+<script>
+    L.map = function* (f, iter) {
+        for (const a of iter) yield f(a);
+    };
+    let it = L.map(a => a + 10, [1, 2, 3]);
+    log(it.next());
+</script>
+
+
+### L.filter
+<script>
+    L.filter = function* (f, iter) {
+        for (const a of iter) {
+            if (f(a)) {
+                yield a
+            }
+        }
+    }
+    let it2 = L.filter(a => a % 2, [1, 2, 3, 4, 5, 6, 7]);
+    log(it2.next());
+</script>
+
+
+### map, filter 계열 함수들이 가지는 결합 법칙
+
+- 사용하는 데이터가 무엇이든지
+- 사용하는 보조 함수가 순수 함수라면 무엇이든지
+- 아래와 같이 결합한다면 둘 다 결과가 같다.
+
+[[mapping, mapping], [filtering, filtering], [mapping, mapping]]
+=
+[[mapping, filtering, mapping], [mapping, filtering, mapping]]
+
+
+## 결과를 만드는 함수 reduce, take
+
+### reduce
+
+<script>
+    // console.clear();
+    // const join = curry((sep = ',', iter) => 
+    // reduce((a,b)=>`${a}${sep}${b}`,iter));
+
+    // const queryStr = obj => go(
+    //     obj,
+    //     Object.entries,
+    //     map(([k,v])=> `${k}=${v}`),
+    //     join('&')
+    // );
+    // log(queryStr({limit:10, offset:10, type:'notice'}));
+</script>
+
+
+<script>
+ /*
+  L.entries = function* (obj) {
+    for (const k in obj) yield [k, obj[k]];
+  };
+
+  const join = curry((sep = ',', iter) =>
+    reduce((a, b) => `${a}${sep}${b}`, iter));
+
+  const queryStr = pipe(
+    L.entries,
+    L.map(([k, v]) => `${k}=${v}`),
+    join('&'));
+
+  log(queryStr({limit: 10, offset: 10, type: 'notice'}));
+
+  // function *a() {
+  //   yield 10;
+  //   yield 11;
+  //   yield 12;
+  //   yield 13;
+  // }
+  //
+  // log(join(' - ', a()));
+  */
+</script>
+
+### take, find
+<script>
+    const users = [
+        {age:32},
+        {age:31},
+        {age:37},
+        {age:28},
+        {age:41},
+        {age:33},
+        {age:31},
+        {age:39},
+    ]
+    const find = (f, iter) => go(
+        iter,
+        filter(f),
+        take(1),
+        ([a]) => a
+    )
+    log(find(u=>u.age < 30, users));
+</script>
+
+## L.flatten
+<script>
+    // log([...[1,2],3,4,...[5,6]]);
+    // 위 처럼 나타내게 하는 함수
+    const isIterable = a => a && a[Symbol.iterator];
+    L.flatten = function* (iter) {
+    for (const a of iter) {
+      if (isIterable(a)) yield* a;
+      else yield a;
+    }
+  };
+    let arr = L.flatten([[1,2],3,4,[5,6]]);
+    
+    
+</script>
+
+## 2차원 배열 다루기
+<script>
+    console.clear();
+    const arrNum = [
+        [1,2],
+        [3,4,5],
+        [6,7,8],
+    ];
+    go(
+    arrNum,
+    L.flatten,
+    L.filter(a=> a%2),
+    take(3),
+    );
+
+</script>
